@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 interface FileData {
     filename: string;
@@ -23,8 +23,11 @@ export default function FilesPage() {
         try {
             const response = await axios.get("http://localhost:3001/files", { withCredentials: true });
             setFiles(response.data);
-        } catch (err) {
-            setError("Non connecté !");
+        } catch (err: unknown) {
+            const errorMessage = err instanceof AxiosError 
+                ? err.response?.data?.message || "Non connecté !"
+                : "Non connecté !";
+            setError(errorMessage);
             router.push("/login"); // Redirection vers /login
         } finally {
             setLoading(false);
@@ -56,8 +59,11 @@ export default function FilesPage() {
 
             setSelectedFile(null);
             await loadFiles(); // Recharge la liste des fichiers après upload
-        } catch (err) {
-            setError("Erreur lors de l'upload. Vérifiez votre connexion.");
+        } catch (err: unknown) {
+            const errorMessage = err instanceof AxiosError 
+                ? err.response?.data?.message || "Erreur lors de l'upload. Vérifiez votre connexion."
+                : "Erreur lors de l'upload. Vérifiez votre connexion.";
+            setError(errorMessage);
         }
     };
 

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -12,13 +12,16 @@ export default function LoginPage() {
     const handleLogin = async () => {
         setError(null);
         try {
-            // ✅ Envoyer la requête avec `withCredentials` pour gérer les cookies
-            await axios.post("http://localhost:3001/auth/login", { email, password }, { withCredentials: true });
-
-            // ✅ Plus besoin de stocker le token, le cookie est automatiquement géré
-            router.push("/files"); // Rediriger vers la page des fichiers
-        } catch (err) {
-            setError("Email ou mot de passe incorrect");
+            await axios.post("http://localhost:3001/auth/login", 
+                { email, password }, 
+                { withCredentials: true }
+            );
+            router.push("/files");
+        } catch (err: unknown) {
+            const errorMessage = err instanceof AxiosError 
+                ? err.response?.data?.message || "Email ou mot de passe incorrect"
+                : "Une erreur est survenue lors de la connexion";
+            setError(errorMessage);
         }
     };
 
