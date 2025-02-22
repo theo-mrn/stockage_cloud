@@ -1,6 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
-import { uploadFile, getFiles } from "../lib/fileService";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import axios, { AxiosError } from "axios";
 
 interface FileData {
     filename: string;
@@ -12,10 +13,31 @@ export default function Home() {
     const [files, setFiles] = useState<FileData[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
+
+    const loadFiles = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        
+        try {
+            const response = await axios.get("http://localhost:3001/files", { withCredentials: true });
+            setFiles(response.data);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof AxiosError 
+                ? err.response?.data?.message || "Impossible de charger les fichiers."
+                : "Impossible de charger les fichiers.";
+            setError(errorMessage);
+            if (err instanceof AxiosError && err.response?.status === 401) {
+                router.push("/login");
+            }
+        } finally {
+            setLoading(false);
+        }
+    }, [router]);
 
     useEffect(() => {
         loadFiles();
-    }, []);
+    }, [loadFiles]);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
@@ -34,25 +56,23 @@ export default function Home() {
         setError(null);
         
         try {
-            await uploadFile(selectedFile);
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+            
+            await axios.post("http://localhost:3001/files/upload", formData, {
+                withCredentials: true,
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            });
+            
             setSelectedFile(null);
             await loadFiles();
-        } catch (err) {
-            setError("Erreur lors de l'upload. Vérifiez votre connexion.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const loadFiles = async () => {
-        setLoading(true);
-        setError(null);
-        
-        try {
-            const response = await getFiles();
-            setFiles(response.data);
-        } catch (err) {
-            setError("Impossible de charger les fichiers.");
+        } catch (err: unknown) {
+            const errorMessage = err instanceof AxiosError 
+                ? err.response?.data?.message || "Erreur lors de l'upload. Vérifiez votre connexion."
+                : "Erreur lors de l'upload. Vérifiez votre connexion.";
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -73,15 +93,23 @@ export default function Home() {
                 {loading ? "Uploading..." : "Uploader"}
             </button>
 
-            <ul className="mt-6 space-y-2">
-                {files.map((file, index) => (
-                    <li key={index}>
-                        <a href={`http://localhost:3001${file.filepath}`} target="_blank" rel="noopener noreferrer" className="text-blue-600">
-                            {file.filename}
-                        </a>
-                    </li>
-                ))}
-            </ul>
+            {loading ? (
+                <p>Chargement...</p>
+            ) : (
+                <ul className="mt-6 space-y-2">
+                    {files.length === 0 ? (
+                        <p>Aucun fichier disponible.</p>
+                    ) : (
+                        files.map((file, index) => (
+                            <li key={index}>
+                                <a href={`http://localhost:3001${file.filepath}`} target="_blank" rel="noopener noreferrer" className="text-blue-600">
+                                    {file.filename}
+                                </a>
+                            </li>
+                        ))
+                    )}
+                </ul>
+            )}
         </main>
     );
 }

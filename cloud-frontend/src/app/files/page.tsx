@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import axios, { AxiosError } from "axios";
 
@@ -15,11 +15,7 @@ export default function FilesPage() {
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
-    useEffect(() => {
-        loadFiles();
-    }, []);
-
-    const loadFiles = async () => {
+    const loadFiles = useCallback(async () => {
         try {
             const response = await axios.get("http://localhost:3001/files", { withCredentials: true });
             setFiles(response.data);
@@ -32,7 +28,11 @@ export default function FilesPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [router]);
+
+    useEffect(() => {
+        loadFiles();
+    }, [loadFiles]);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
