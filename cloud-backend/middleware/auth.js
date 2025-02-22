@@ -1,15 +1,24 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = function (req, res, next) {
-    const token = req.cookies.token; // 🔹 Lire le token depuis le cookie
+module.exports = (req, res, next) => {
+    const authHeader = req.headers["authorization"];
+    
+    if (!authHeader) {
+        return res.status(401).json({ error: "Accès refusé, token manquant" });
+    }
 
-    if (!token) return res.status(403).json({ error: "Accès refusé, token manquant" });
+    // Extraire le token de "Bearer ..."
+    const token = authHeader.split(" ")[1];
+
+    if (!token) {
+        return res.status(401).json({ error: "Accès refusé, token invalide" });
+    }
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded; // Ajouter l'ID utilisateur à req.user
+        req.user = decoded; // Stocker l'ID utilisateur dans req.user
         next();
     } catch (err) {
-        res.status(403).json({ error: "Token invalide" });
+        return res.status(403).json({ error: "Token invalide" });
     }
 };
