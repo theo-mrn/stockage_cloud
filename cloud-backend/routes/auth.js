@@ -5,6 +5,9 @@ const pool = require("../db");
 
 const router = express.Router();
 
+// ✅ Debugging log pour voir si le fichier est chargé
+console.log("🛠️ auth.js chargé !");
+
 // Route de connexion sécurisée
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;
@@ -33,19 +36,17 @@ router.post("/login", async (req, res) => {
                 username: user.username,
                 email: user.email
             },
-            token // 🔥 On ajoute le token à la réponse
+            token
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-
 router.post("/register", async (req, res) => {
     const { username, email, password } = req.body;
 
     try {
-        // Vérifier si l'utilisateur existe déjà
         const userExists = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
         if (userExists.rows.length > 0) {
             return res.status(400).json({ error: "Cet email est déjà utilisé" });
@@ -74,11 +75,12 @@ router.post("/register", async (req, res) => {
     }
 });
 
-
-
 // Route de déconnexion
 router.post("/logout", (req, res) => {
     res.clearCookie("token").json({ message: "Déconnexion réussie" });
 });
+
+// ✅ Debugging log pour voir si le fichier exporte bien le routeur
+console.log("🛠️ auth.js exporte :", router);
 
 module.exports = router;
