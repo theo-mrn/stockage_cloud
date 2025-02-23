@@ -1,0 +1,18 @@
+ssh -i ec2Test.pem ec2-user@ec2-3-79-29-121.eu-central-1.compute.amazonaws.com
+ssh -i ec2Test.pem ec2-user@ec2-3-67-98-41.eu-central-1.compute.amazonaws.com
+
+
+pour push sur ec2 : 
+
+
+scp -i ec2Test.pem -r build ec2-user@ec2-3-79-29-121.eu-central-1.compute.amazonaws.com:~/
+
+
+remplacer l'encien site : 
+
+sudo rm -rf /usr/share/nginx/html/*  # Supprime l'ancien site
+sudo mv ~/build/* /usr/share/nginx/html/  # Déplace le nouveau build
+sudo chmod -R 755 /usr/share/nginx/html/  # Donne les bons droits
+
+
+sudo systemctl restart nginx
