@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const path = require("path");
+const db = require('./models');
 
 const app = express();
 
@@ -42,6 +43,15 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/files", filesRoutes);
 
+// Synchronisation de la base de données
+db.sequelize.sync()
+  .then(() => {
+    console.log('✅ Base de données synchronisée');
+  })
+  .catch(err => {
+    console.error('❌ Erreur de synchronisation de la base de données:', err);
+  });
+
 // Log des routes enregistrées
 app._router.stack.forEach((r) => {
     if (r.route && r.route.path) {
@@ -51,5 +61,3 @@ app._router.stack.forEach((r) => {
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`🚀 Backend running on http://localhost:${PORT}`));
-
-

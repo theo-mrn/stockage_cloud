@@ -1,0 +1,1 @@
+require('dotenv').config(); const { Pool } = require('pg'); const pool = new Pool({ connectionString: process.env.DATABASE_URL }); pool.query('SELECT NOW()', (err, res) => { if (err) { console.error('Error:', err); process.exit(1); } else { console.log('Success:', res.rows[0]); process.exit(0); } });
