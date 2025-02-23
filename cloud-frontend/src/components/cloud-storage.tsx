@@ -70,7 +70,7 @@ const DEMO_FILES: FileItem[] = [
 export function CloudStorage() {
   const [view, setView] = React.useState<"grid" | "list">("grid")
   const [files, setFiles] = React.useState<FileItem[]>(DEMO_FILES)
-  const [currentPath, setCurrentPath] = React.useState<string[]>(["Mon Cloud"])
+  const [currentPath] = React.useState<string[]>(["Mon Cloud"])
 
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 

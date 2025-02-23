@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { AnimatePresence, motion } from "framer-motion"
 import {
   ArrowLeft,
@@ -610,11 +611,12 @@ function FileCard({
     switch (file.type) {
       case "image":
         return (
-          <div className="aspect-video rounded-t-lg overflow-hidden bg-black">
-            <img 
+          <div className="aspect-video rounded-t-lg overflow-hidden bg-black relative">
+            <Image 
               src={`${process.env.NEXT_PUBLIC_API_URL}${file.filepath}`} 
               alt={file.filename} 
-              className="h-full w-full object-contain"
+              fill
+              className="object-contain"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.src = "/placeholder.svg";
@@ -672,15 +674,18 @@ function FileCard({
               <FolderIcon className="h-6 w-6 text-white" />
             </div>
           ) : file.type === "image" ? (
-            <img 
-              src={`${process.env.NEXT_PUBLIC_API_URL}${file.filepath}`} 
-              alt={file.filename} 
-              className="h-full w-full object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = "/placeholder.svg";
-              }}
-            />
+            <div className="h-10 w-10 relative">
+              <Image 
+                src={`${process.env.NEXT_PUBLIC_API_URL}${file.filepath}`} 
+                alt={file.filename} 
+                fill
+                className="object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/placeholder.svg";
+                }}
+              />
+            </div>
           ) : (
             renderPreview()
           )}
