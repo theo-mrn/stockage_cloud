@@ -1,10 +1,9 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3001";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://sigrid.site";
 
 // ✅ Toujours envoyer les cookies avec les requêtes
 axios.defaults.withCredentials = true;
-
 export const login = async (email, password) => {
     return await axios.post(`${API_URL}/auth/login`, { email, password });
 };

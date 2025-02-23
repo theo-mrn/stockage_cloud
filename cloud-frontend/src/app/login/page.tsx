@@ -12,7 +12,7 @@ export default function LoginPage() {
     const handleLogin = async () => {
         setError(null);
         try {
-            await axios.post("http://localhost:3001/auth/login", 
+            await axios.post("https://sigrid.site/auth/login", 
                 { email, password }, 
                 { withCredentials: true }
             );

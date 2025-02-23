@@ -20,7 +20,7 @@ export default function Home() {
         setError(null);
         
         try {
-            const response = await axios.get("http://localhost:3001/files", { withCredentials: true });
+            const response = await axios.get("https://sigrid.site/files", { withCredentials: true });
             setFiles(response.data);
         } catch (err: unknown) {
             const errorMessage = err instanceof AxiosError 
@@ -59,7 +59,7 @@ export default function Home() {
             const formData = new FormData();
             formData.append("file", selectedFile);
             
-            await axios.post("http://localhost:3001/files/upload", formData, {
+            await axios.post("https://sigrid.site/files/upload", formData, {
                 withCredentials: true,
                 headers: {
                     "Content-Type": "multipart/form-data"
@@ -102,7 +102,7 @@ export default function Home() {
                     ) : (
                         files.map((file, index) => (
                             <li key={index}>
-                                <a href={`http://localhost:3001${file.filepath}`} target="_blank" rel="noopener noreferrer" className="text-blue-600">
+                                <a href={`https://sigrid.site${file.filepath}`} target="_blank" rel="noopener noreferrer" className="text-blue-600">
                                     {file.filename}
                                 </a>
                             </li>
